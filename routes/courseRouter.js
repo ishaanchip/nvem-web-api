@@ -54,9 +54,10 @@ const schemas = require("../models/schema");
         try{
             let {course_name, question_bank} = req.body;
             const courseQuery = schemas.NvemCourses;
+            const updateField = `content.question_bank`
             const result = await courseQuery.updateOne(
                 {course_name:course_name},
-                {$set: {question_bank: question_bank}},
+                {$set: {[updateField]: question_bank}},
             )
 
             if (!result) {
