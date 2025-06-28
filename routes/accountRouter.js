@@ -2,8 +2,24 @@ const express  = require("express");
 const router = express.Router();
 const schemas = require("../models/schema");
 
-
-//Home routes
+//GENERAL ROUTES
+    //gathering account data
+    router.get('/get-nvem-account/:email', async(req, res) =>{
+        try{
+            let email = req.params.email;
+            const accountQuery = schemas.NvemAccounts;
+            const result = await accountQuery.findOne(
+                {'email':email},
+                {_id:0}
+            )
+            console.log("success!");
+            res.status(200).json({result})
+        }
+        catch(err){
+            console.log(`there was backend error getting account info: ${err}`)
+        }
+    })
+//HOME ROUTES
     // //creating account
     router.post('/create-nvem-account', async(req, res) =>{
         try{
@@ -36,4 +52,53 @@ const schemas = require("../models/schema");
         }
     })
 
+//ARTICLE
+    //updating highlight data
+    router.put('/update-highlight-data', async(req, res) =>{
+        try{
+            let {course_name, email, highlights} = req.body;
+            const accountQuery = schemas.NvemAccounts;
+            const updateField = `course_history.${course_name}.article_highlights`;
+            const result = await accountQuery.updateOne(
+                {email:email},
+                {$set: {[updateField]: highlights}},
+            )
+            console.log('hi?')
+
+            if (!result) {
+                return res.status(404).json({ success: false, message: "User not found" });
+            }
+
+            res.status(200).json({ success: true, updatedAccount: result });
+            console.log('run?')
+        }
+        catch (err){
+            console.log(`there was a backend error: could not add user highlights -> ${err}`)
+        }
+    })
+
+//CODING TASK
+    //updating code history data
+    router.put('/update-code-history', async(req, res) =>{
+        try{
+            let {course_name, email, code_history} = req.body;
+            const accountQuery = schemas.NvemAccounts;
+            const updateField = `course_history.${course_name}.code_history`;
+            const result = await accountQuery.updateOne(
+                {email:email},
+                {$set: {[updateField]: code_history}},
+            )
+            console.log('hi?')
+
+            if (!result) {
+                return res.status(404).json({ success: false, message: "User not found" });
+            }
+
+            res.status(200).json({ success: true, updatedAccount: result });
+            console.log('run?')
+        }
+        catch (err){
+            console.log(`there was a backend error: could not add user code -> ${err}`)
+        }
+    })
 module.exports = router;
