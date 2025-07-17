@@ -101,4 +101,41 @@ const schemas = require("../models/schema");
             console.log(`there was a backend error: could not add user code -> ${err}`)
         }
     })
+
+
+
+//QUIZ
+    //updating quiz history data
+    router.put('/update-quiz-history', async(req, res) =>{
+        try{
+            let {course_name, email, quiz_score, quiz_history} = req.body;
+            const accountQuery = schemas.NvemAccounts;
+            const updateFieldOne = `course_history.${course_name}.quiz_score`;
+            const updateFieldTwo = `course_history.${course_name}.quiz_history`;
+            const updateFieldThree = `course_history.${course_name}.quiz_attempts`;
+
+            const result = await accountQuery.updateOne(
+                {email:email},
+                {
+                    $set: {[updateFieldOne]: quiz_score, [updateFieldTwo]: quiz_history},
+                    $inc: {[updateFieldThree]: 1}
+                },
+                
+            )
+            console.log('hi?')
+
+            if (!result) {
+                return res.status(404).json({ success: false, message: "User not found" });
+            }
+
+            res.status(200).json({ success: true, updatedAccount: result });
+            console.log('run?')
+        }
+        catch (err){
+            console.log(`there was a backend error: could not add quiz data -> ${err}`)
+        }
+    })
+
+
+
 module.exports = router;
